@@ -1,0 +1,36 @@
+#+begin_example org
+* Create a source block
+* Insert base64-encoded data, such as PNG file =C-u= =M-!= =base64 file.png=
+* Ensure =base64= is in the block language
+* Ensure =:type= header is specified
+  Either extension your viewer supports or something Emacs can insert.
+* If you want to display it via external viewer use =:external yes= header
+#+end_example
+
+#+begin_src base64 :external yes :type png
+iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAQAAABIkb+zAAAAAmJLR0QA/4ePzL8AAATTSURBVHja
+7drNc1PXGcfxz5UtWZZtyfFLCPUrL3ZTGgJkyJBOUzZJp0wWXZRFmj+wySKr0plMZjotXXTaoWHa
+SRMgDcRuMQWCsSNiy7KMpduFXWrwNdaVZYZOztc7n3ue8/zuec45zz2PCAQCgUAgEAgEAoFAIBAI
+fBeJ9tQrbqsPLVlLLyCSU5DHqhVrexSxZ2tpBXQoGjNqAItumfOtesvut8FaR0q5JS/7ibNOO2ZC
+r5oltRbdb4u1zlRP54w546yj+lE2iIqVFiW0xVoaAZGCUT901KgCerHgS3MtrYQ2WUs3A3kDhvQr
+yIF+QwbkUzvfRmuZFgd/bkg3A6sW3VfWC1aU3bdotcWx22It3S4Uy+nVp1NdxT03XPapu9ZbEtAW
+a+kENKypqVvzwB3XXXbJjEpL7rfJ2v/9QfadSyUe7/UcJHOBQCAQCAQCgUCgZaKmWp/jTD16SsvG
+t1Kk2oYvr715F+/+yJNsfK0eckBO2T/dcL/Fu4fWnW/qY7Nzh85FP3DWaSO6rZrzFxd9ofLM5qFD
+0bgJw5j3Lzd3+txPvlbpctjbzjllwgEvmXTMpNiiqsYzcD9Sctw5P/NjJ03pV/Ug+dK3M7F7wSGn
+fd/QZntOjyETRl3w1TMIpZyjzvmpCQWsGJdX9fckCckhlHfAiNKW1oyiU/oU/MrMPs9CpM8JZ03r
+0YG8LjUzZpNWQmYHEzn5beHVZcp57xhq8TKmeQEDjju86T4dehx23EDSuMkCqspWEt5zzpR3vaW4
+zxJKJpS2vMCNJV1KejR5EccKjpjQvc3RToNeUnF/35ZzRq/X/dzBJ17uvD+a2x5CyQIaagomDcpu
+a8t60aSMeQ/aKiES6dBnytvec+qJQkfsjotubheQvIhjCy4aljedUDEpOKlXn/d9tYeL3cedz+o1
+aNxJrzthXPe2Z9aTd7+dChzrZn2o4l2vJhjrMu09Ge+b9VC8h+MtktHtoGNe8bKjxgzoSliZdUuq
+SePsXB9oKJu16KDhhEDqUHLEmIIOdQ2xTOq/rKIRr3nHL533llPGFWUTN4gVl/zOYvMzsKH6rt+I
+5JzQldBz1C+8YcY11/1bRcNGJMebLsT+m4ZFPPpftDljXV50xLQjRvTremqppWHBtST3d6uRxcp+
+a1jB9GYlcSsZvaZM+pFl31pRf+Rm9Jj7WyXEj2TkFfUpyDZRJar6zN8sJ4XQbkW+2D0XFJxPXM4b
+R15OyfdS70gZzVYnar70saseJjXurr7hgTnLBhM31f8JSbsCoqbcj1V94UMX3E5+Rc0U+RrKZswb
+Niy3z2fw4+OuuuPPPvBrN3fasJurEzfM+8i6hjP7nkZAbN2yW674xCXXlHcO0GYL3bElf9BhzRkv
+pCyPp3O9rqZs1if+5HNfW1J/2jnTvCuxb/xexS1vGn+UKbbX9apFt8266q+u+NqaXS8U0oVDRrdJ
+b3jTq8YUZdv0W4u6mgUzPveZ6+6at6TW3PmePp4zuo14xWtOOmRIj6xMi+si1rBm2W1XXfap6xY2
+U5Omk5NW68Q5RWOmTZs0rE9uU0SzBxkbOe+SO2644h/uqWg8q0L3Rs9IVo9+JT2yIrE0qUQk9tCy
+b5StWG81Idz7lhg1eSQlkypcAoFAIBAIBAKBQGAr/wEr4Jsx3fdw9QAAAABJRU5ErkJggg==
+#+end_src
+
+#+RESULTS:
