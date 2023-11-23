@@ -1,11 +1,11 @@
-;;; ob-base64.el --- org-babel for base64 content -*- lexical-binding: t; -*-
+;;; ob-base64.el --- Org-babel for base64 content -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023 Peter Badida
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
 ;; Version: 1.0.0
-;; Package-Requires: ()
+;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
 ;;; License:
@@ -79,7 +79,8 @@
 ;; `mapconcat' form, therefore to change the formatting you can edit the
 ;; `format' form.
 (defun org-babel-expand-body:base64 (body params &optional processed-params)
-  "Expand BODY according to PARAMS, return the expanded body."
+  "Expand BODY according to PARAMS, return the expanded body.
+Optional argument PROCESSED-PARAMS Coming from org-babel template."
   (require 'inf-base64 nil t)
   (let ((vars (org-babel--get-vars (or processed-params
                                        (org-babel-process-params params)))))
@@ -107,7 +108,9 @@
 ;; PARAMS argument using `org-babel-process-params'.
 (defun org-babel-execute:base64 (body params)
   "Execute a block of Base64 code with org-babel.
-This function is called by `org-babel-execute-src-block'"
+This function is called by `org-babel-execute-src-block'
+Argument BODY Coming from org-babel template.
+Argument PARAMS Coming from org-babel template."
   (message "executing Base64 source code block")
   (let* ((processed-params (org-babel-process-params params))
          ;; variables assigned for use in the block
@@ -130,6 +133,7 @@ This function is called by `org-babel-execute-src-block'"
                  (if (not value)
                      (error ":type for base64 block must be defined")
                    value))))
+    (ignore vars result-params result-type)
     (let* ((tmp-file (make-temp-file "ob-base64-" nil (format ".%s" type)))
            (tmp-name (format "ob-base64-render-%s"
                              (replace-regexp-in-string "/" "" tmp-file))))
@@ -161,22 +165,22 @@ This function is called by `org-babel-execute-src-block'"
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
-(defun org-babel-prep-session:base64 (session params)
+(defun org-babel-prep-session:base64 (_session _params)
   "Prepare SESSION according to the header arguments specified in PARAMS.")
 
 (defun org-babel-base64-var-to-base64 (var)
-  "Convert an elisp var into a string of base64 source code
-specifying a var of the same value."
+  "Convert an elisp VAR into a string of base64 source code specifying a VAR."
   (format "%S" var))
 
 (defun org-babel-base64-table-or-string (results)
-  "If the results look like a table, then convert them into an
-Emacs-lisp table, otherwise return the results as a string.")
+  "Convert RESULTS into an Emacs-lisp table or return back as string."
+  (ignore results))
 
-(defun org-babel-base64-initiate-session (&optional session)
+(defun org-babel-base64-initiate-session (&optional _session)
   "If there is not a current inferior-process-buffer in SESSION then create.
 Return the initialized session."
-  (unless (string= session "none")))
+  ;; (unless (string= session "none"))
+  )
 
 (provide 'ob-base64)
 ;;; ob-base64.el ends here
