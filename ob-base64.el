@@ -70,6 +70,9 @@
   :group 'ob-base64
   :type 'boolean)
 
+;; aliases for org-babel + package-lint
+(defalias 'org-babel-expand-body:base64 #'ob-base64-expand-body-base64)
+
 ;; optionally declare default header arguments for this language
 (defvar org-babel-default-header-args:base64
   '((:results . "embed") (:exports . "results"))
@@ -80,7 +83,7 @@
 ;; `org-babel-execute:base64' function below. Variables get concatenated in the
 ;; `mapconcat' form, therefore to change the formatting you can edit the
 ;; `format' form.
-(defun org-babel-expand-body:base64 (body params &optional processed-params)
+(defun ob-base64-expand-body-base64 (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body.
 Optional argument PROCESSED-PARAMS Coming from org-babel template."
   (require 'inf-base64 nil t)
@@ -128,6 +131,24 @@ Argument PARAMS Coming from org-babel template."
                        (when (string= ":external" (car param))
                          (setq value (cdr param))))
                      value))
+         (embed (let ((value nil))
+                  (dolist (param processed-params)
+                   (when (string= ":results" (car param))
+                     (setq value (split-string (cdr param)))))
+                  (when (string= "embed" (car (last value)))
+                    t)))
+         (file (let ((value nil))
+                  (dolist (param processed-params)
+                   (when (string= ":results" (car param))
+                     (setq value (split-string (cdr param)))))
+                  (when (string= "file" (car (last value)))
+                    t)))
+         (browse (let ((value nil))
+                  (dolist (param processed-params)
+                   (when (string= ":results" (car param))
+                     (setq value (split-string (cdr param)))))
+                  (when (string= "browse" (car (last value)))
+                    t)))
          (type (let ((value nil))
                  (dolist (param processed-params)
                    (when (string= ":type" (car param))
