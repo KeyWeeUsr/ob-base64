@@ -37,6 +37,7 @@
 (require 'ob-ref)
 (require 'ob-comint)
 (require 'ob-eval)
+(require 'image-file)
 
 (defgroup ob-base64
   nil
@@ -72,6 +73,9 @@
 
 ;; aliases for org-babel + package-lint
 (defalias 'org-babel-expand-body:base64 #'ob-base64-expand-body-base64)
+(defalias 'org-babel-base64-var-to-base64 #'ob-base64-var-to-base64)
+(defalias 'org-babel-base64-table-or-string #'ob-base64-table-or-string)
+(defalias 'org-babel-base64-initiate-session #'ob-base64-initiate-session)
 
 ;; optionally declare default header arguments for this language
 (defvar org-babel-default-header-args:base64
@@ -85,7 +89,18 @@
 ;; `format' form.
 (defun ob-base64-expand-body-base64 (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body.
-Optional argument PROCESSED-PARAMS Coming from org-babel template."
+Optional argument PROCESSED-PARAMS Coming from org-babel template.
+
+:type | :results | action
+raw   | browse   | open in new/temp buffer
+raw   | embed    | standard text result of decoded base64
+raw   | file     | link to kept file
+image | browse   | `image-mode' for file, `delete-file' after func call
+image | embed    | to temp file, `create-image', embed, `delete-file'
+image | file     | link to kept file
+bin   | browse   | `hexl-find-file'
+bin   | embed    | `hexlify-buffer'
+bin   | file     | link to kept file"
   (require 'inf-base64 nil t)
   (let ((vars (org-babel--get-vars (or processed-params
                                        (org-babel-process-params params)))))
@@ -111,11 +126,12 @@ Optional argument PROCESSED-PARAMS Coming from org-babel template."
 ;;
 ;; The most common first step in this function is the expansion of the
 ;; PARAMS argument using `org-babel-process-params'.
-(defun org-babel-execute:base64 (body params)
+(defun org-babel-execute:base64 (body params &optional level)
   "Execute a block of Base64 code with org-babel.
 This function is called by `org-babel-execute-src-block'
 Argument BODY Coming from org-babel template.
-Argument PARAMS Coming from org-babel template."
+Argument PARAMS Coming from org-babel template.
+Optional argument LEVEL of recursive call."
   (message "executing Base64 source code block")
   (let* ((processed-params (org-babel-process-params params))
          ;; variables assigned for use in the block
@@ -155,51 +171,146 @@ Argument PARAMS Coming from org-babel template."
                      (setq value (cdr param))))
                  (if (not value)
                      (error ":type for base64 block must be defined")
-                   value))))
+                   value)))
+         (tmp-skip (and embed (not (member type image-file-name-extensions))))
+         (tmp-file (unless tmp-skip
+                     (org-babel-temp-file "ob-base64-" (format ".%s" type))))
+         (tmp-name (unless tmp-skip
+                     (format "ob-base64-render-%s"
+                             (replace-regexp-in-string "/" "" tmp-file)))))
     (ignore vars result-params result-type)
-    (let* ((tmp-file (make-temp-file "ob-base64-" nil (format ".%s" type)))
-           (tmp-name (format "ob-base64-render-%s"
-                             (replace-regexp-in-string "/" "" tmp-file))))
+
+    (unless (and embed (not (member type image-file-name-extensions)))
       (with-temp-file tmp-file
         (set-buffer-file-coding-system 'no-conversion)
-        (insert (base64-decode-string full-body)))
-      (if (or ob-base64-default-external
+        (insert (base64-decode-string full-body))))
+
+    (when (or ob-base64-default-external
               (string= external "yes"))
-          (start-process tmp-name nil ob-base64-external-viewer-bin tmp-file)
-        nil)
-      (if ob-base64-tmp-file-autodelete
-          (delete-file tmp-file)
-        (when (or ob-base64-default-external
-                  (string= external "yes"))
-          (run-at-time
-           t (/ ob-base64-schedule-delete-interval-ms 1000.0)
-           (lambda (name file)
-             (let ((found nil))
-               (dolist (proc (process-list))
-                 (when (string= name (process-name proc))
-                   (setq found t)))
-               (unless found
-                 (delete-file file)
-                 (dolist (timer timer-list)
-                   (when (string-match name (format "%s" timer))
-                     (cancel-timer timer))))))
-           tmp-name tmp-file))))
-    nil))
+      (ob-base64--render-external tmp-name tmp-file))
+
+    (when ob-base64-tmp-file-autodelete
+      ;; TODO: try-finally
+      (delete-file tmp-file))
+
+    (cond ((or ob-base64-default-external (string= external "yes"))
+           (ob-base64--render-external tmp-name tmp-file))
+          (browse (if (not (string= type "bin"))
+                      (ob-base64--render-internal-browse tmp-name tmp-file)
+                    (hexl-find-file tmp-file)
+                    (delete-file tmp-file)))
+          (embed (if (member type image-file-name-extensions)
+                     (ob-base64--render-internal-embed
+                      body params level tmp-name tmp-file)
+                   (if (string= type "bin")
+                       (with-temp-buffer
+                         (let ((y-or-n-p (lambda (&rest _) nil)))
+                           (ignore y-or-n-p)
+                           (insert (base64-decode-string full-body))
+                           (hexlify-buffer)
+                           (buffer-string)))
+                     (base64-decode-string full-body))))
+          (file tmp-file))))
+
+(defun ob-base64--render-external (name file)
+  "Render a decoded base64 externally with `ob-base64-external-viewer-bin'.
+Argument NAME for external process.
+Argument FILE path to the temporary file to render."
+  (start-process name nil ob-base64-external-viewer-bin file))
+
+(defun ob-base64--render-external-cleanup (name file)
+  "Clean-up FILE after rendering externally.
+Argument NAME for external process."
+  (run-at-time
+   t (/ ob-base64-schedule-delete-interval-ms 1000.0)
+   (lambda (lname lfile)
+     (let ((found nil))
+       (dolist (proc (process-list))
+         (when (string= lname (process-name proc))
+           (setq found t)))
+       (unless found
+         (when (file-exists-p lfile)
+           (delete-file lfile))
+         (dolist (timer timer-list)
+           (when (string-match lname (format "%s" timer))
+             (cancel-timer timer))))))
+   name file)
+  nil)
+
+(defun ob-base64--render-internal-browse (name file)
+  "Render an image into a new buffer with `image-mode'.
+Argument NAME for timer identification.
+Argument FILE path to the temporary file to render."
+  (browse-url-emacs file nil)
+  (run-at-time
+   1 nil
+   (lambda (lname lfile)
+     (delete-file lfile)
+     (dolist (timer timer-list)
+       (when (string-match lname (format "%s" timer))
+         (cancel-timer timer))))
+   name file))
+
+(defun ob-base64--render-internal-embed (body params level name file)
+  "Render an image directly into a buffer.
+
+This is done via recursion due to org-babel not being able to
+take the result of `create-image' and render it in-place, so the
+first iteration makes the `#+RESULT:' section and the following
+navigates to it only to insert the image in-place.  The raw
+inserted value is ` ' (whitespace).
+Argument BODY org-babel param.
+Argument PARAMS org-babel param.
+Argument LEVEL of recursive call.
+Argument NAME for timer identification.
+Argument FILE path to the temporary file to render."
+  (when (and (not (org-babel-where-is-src-block-result))
+             (not level))
+    (run-at-time
+     0 nil
+     (lambda (old-file old-body old-params new-level)
+       (delete-file old-file)
+       (org-babel-execute:base64 old-body old-params new-level))
+     file body params 1))
+
+  (when (or level (org-babel-where-is-src-block-result))
+    (goto-char (org-babel-where-is-src-block-result))
+    (move-end-of-line nil)
+    (forward-char)
+    (delete-region (point) (point-at-eol))
+    (backward-char)
+    (delete-char 1)
+    (insert "\n")
+    (insert-image (create-image file))
+    (move-beginning-of-line nil)
+    (backward-char)
+    (move-beginning-of-line nil)
+    (backward-char))
+
+  (run-at-time
+   1 nil
+   (lambda (lname lfile)
+     (delete-file lfile)
+     (dolist (timer timer-list)
+       (when (string-match lname (format "%s" timer))
+         (cancel-timer timer))))
+   name file)
+  nil)
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
 (defun org-babel-prep-session:base64 (_session _params)
   "Prepare SESSION according to the header arguments specified in PARAMS.")
 
-(defun org-babel-base64-var-to-base64 (var)
+(defun ob-base64-var-to-base64 (var)
   "Convert an elisp VAR into a string of base64 source code specifying a VAR."
   (format "%S" var))
 
-(defun org-babel-base64-table-or-string (results)
+(defun ob-base64-table-or-string (results)
   "Convert RESULTS into an Emacs-lisp table or return back as string."
   (ignore results))
 
-(defun org-babel-base64-initiate-session (&optional _session)
+(defun ob-base64-initiate-session (&optional _session)
   "If there is not a current inferior-process-buffer in SESSION then create.
 Return the initialized session."
   ;; (unless (string= session "none"))
