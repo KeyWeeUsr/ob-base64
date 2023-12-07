@@ -65,11 +65,20 @@
   :group 'ob-base64
   :type 'boolean)
 
-(defcustom ob-base64-schedule-delete-interval-ms
+(defcustom ob-base64-schedule-autodelete-interval-ms
   100
-  "Auto-delete temporary file, might break external viewer."
+  "Auto-delete temporary file after decoding, might break external viewer."
   :group 'ob-base64
-  :type 'boolean)
+  :type 'number)
+
+(defcustom ob-base64-schedule-delete-interval-ms
+  1000
+  "Delay for deleting temporary file after displaying.
+
+Waits for closing of external process, safer than
+`ob-base64-schedule-autodelete-interval-ms'."
+  :group 'ob-base64
+  :type 'number)
 
 ;; aliases for org-babel + package-lint
 (defalias 'org-babel-expand-body:base64 #'ob-base64-expand-body-base64)
@@ -222,7 +231,8 @@ Argument FILE path to the temporary file to render."
   "Clean-up FILE after rendering externally.
 Argument NAME for external process."
   (run-at-time
-   t (/ ob-base64-schedule-delete-interval-ms 1000.0)
+   t
+   (/ ob-base64-schedule-autodelete-interval-ms 1000.0)
    (lambda (lname lfile)
      (let ((found nil))
        (dolist (proc (process-list))
@@ -243,7 +253,8 @@ Argument NAME for timer identification.
 Argument FILE path to the temporary file to render."
   (browse-url-emacs file nil)
   (run-at-time
-   1 nil
+   (/ ob-base64-schedule-delete-interval-ms 1000)
+   nil
    (lambda (lname lfile)
      (delete-file lfile)
      (dolist (timer timer-list)
@@ -288,7 +299,8 @@ Argument FILE path to the temporary file to render."
     (backward-char))
 
   (run-at-time
-   1 nil
+   (/ ob-base64-schedule-delete-interval-ms 1000)
+   nil
    (lambda (lname lfile)
      (delete-file lfile)
      (dolist (timer timer-list)
