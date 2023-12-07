@@ -1,13 +1,22 @@
-#+begin_example org
 * Create a source block
 * Insert base64-encoded data, such as PNG file =C-u= =M-!= =base64 file.png=
 * Ensure =base64= is in the block language
 * Ensure =:type= header is specified
-  Either extension your viewer supports or something Emacs can insert.
+  - raw
+  - bin
+  - image extension from =image-file-name-extensions=
+  - anything your external viewer supports (can't be embedded)
+* Use =:results= header to change output type
+  - embed
+  - file
+  - browse
 * If you want to display it via external viewer use =:external yes= header
-#+end_example
-
-#+begin_src base64 :external yes :type png
+* Examples
+=C-c C-c= in or after the code block.
+** Embedding images in the buffer
+Temporarily displayed/embedded, can't really be saved and needs to be re-drawn
+on every buffer opening - the base64 is the real "saved" value.
+#+begin_src base64 :type png :results embed
 iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAQAAABIkb+zAAAAAmJLR0QA/4ePzL8AAATTSURBVHja
 7drNc1PXGcfxz5UtWZZtyfFLCPUrL3ZTGgJkyJBOUzZJp0wWXZRFmj+wySKr0plMZjotXXTaoWHa
 SRMgDcRuMQWCsSNiy7KMpduFXWrwNdaVZYZOztc7n3ue8/zuec45zz2PCAQCgUAgEAgEAoFAIBAI
@@ -34,3 +43,18 @@ b5StWG81Idz7lhg1eSQlkypcAoFAIBAIBAKBQGAr/wEr4Jsx3fdw9QAAAABJRU5ErkJggg==
 #+end_src
 
 #+RESULTS:
+ 
+** Embedding raw text of base64 decoding
+#+begin_src base64 :type raw :results embed
+b2ItYmFzZTY0
+#+end_src
+
+#+RESULTS:
+: ob-base64
+** Embedding hexlified content
+#+begin_src base64 :type bin :results embed
+b2ItYmFzZTY0
+#+end_src
+
+#+RESULTS:
+: 00000000: 6f62 2d62 6173 6536 34                   ob-base64
