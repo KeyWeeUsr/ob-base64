@@ -71,7 +71,9 @@
   :type 'boolean)
 
 ;; optionally declare default header arguments for this language
-(defvar org-babel-default-header-args:base64 '())
+(defvar org-babel-default-header-args:base64
+  '((:results . "embed") (:exports . "results"))
+  "Default arguments for evaluating a base64 source block.")
 
 ;; This function expands the body of a source code block by doing things like
 ;; prepending argument definitions to the body, it should be called by the
