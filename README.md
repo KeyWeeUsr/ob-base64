@@ -6,7 +6,7 @@ possibly).
 ## How to
 
 1. Have `org-mode` enabled in a buffer and create a source block
-2. Check `example.org` or documentation for `ob-base64-expand-body-base64`
+2. Check `example.org` or documentation for `org-babel-execute:base64`
 3. Execute the block with `C-c C-c`
 
 ## Customization

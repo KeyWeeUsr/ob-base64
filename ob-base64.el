@@ -98,18 +98,7 @@ Waits for closing of external process, safer than
 ;; `format' form.
 (defun ob-base64-expand-body-base64 (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body.
-Optional argument PROCESSED-PARAMS Coming from org-babel template.
-
-:type | :results | action
-raw   | browse   | open in new/temp buffer
-raw   | embed    | standard text result of decoded base64
-raw   | file     | link to kept file
-image | browse   | `image-mode' for file, `delete-file' after func call
-image | embed    | to temp file, `create-image', embed, `delete-file'
-image | file     | link to kept file
-bin   | browse   | `hexl-find-file'
-bin   | embed    | `hexlify-buffer'
-bin   | file     | link to kept file"
+Optional argument PROCESSED-PARAMS Coming from org-babel template."
   (require 'inf-base64 nil t)
   (let ((vars (org-babel--get-vars (or processed-params
                                        (org-babel-process-params params)))))
@@ -140,7 +129,18 @@ bin   | file     | link to kept file"
 This function is called by `org-babel-execute-src-block'
 Argument BODY Coming from org-babel template.
 Argument PARAMS Coming from org-babel template.
-Optional argument LEVEL of recursive call."
+Optional argument LEVEL of recursive call.
+
+:type | :results | action
+raw   | browse   | open in new/temp buffer
+raw   | embed    | standard text result of decoded base64
+raw   | file     | link to kept file
+image | browse   | `image-mode' for file, `delete-file' after func call
+image | embed    | to temp file, `create-image', embed, `delete-file'
+image | file     | link to kept file
+bin   | browse   | `hexl-find-file'
+bin   | embed    | `hexlify-buffer'
+bin   | file     | link to kept file"
   (message "executing Base64 source code block")
   (let* ((processed-params (org-babel-process-params params))
          ;; variables assigned for use in the block
