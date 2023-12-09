@@ -4,7 +4,7 @@
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
-;; Version: 1.0.0
+;; Version: 1.1.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
@@ -80,6 +80,12 @@ Waits for closing of external process, safer than
   :group 'ob-base64
   :type 'number)
 
+(defcustom ob-base64-embed-image-string
+  " "
+  "Placeholder for embedded image."
+  :group 'ob-base64
+  :type 'string)
+
 ;; aliases for org-babel + package-lint
 (defalias 'org-babel-expand-body:base64 #'ob-base64-expand-body-base64)
 (defalias 'org-babel-base64-var-to-base64 #'ob-base64-var-to-base64)
@@ -140,7 +146,9 @@ image | embed    | to temp file, `create-image', embed, `delete-file'
 image | file     | link to kept file
 bin   | browse   | `hexl-find-file'
 bin   | embed    | `hexlify-buffer'
-bin   | file     | link to kept file"
+bin   | file     | link to kept file
+
+:scale is passed to `create-image'."
   (message "executing Base64 source code block")
   (let* ((processed-params (org-babel-process-params params))
          ;; variables assigned for use in the block
@@ -181,6 +189,13 @@ bin   | file     | link to kept file"
                  (if (not value)
                      (error ":type for base64 block must be defined")
                    value)))
+         (scale (let ((value nil))
+                 (dolist (param processed-params)
+                   (when (string= ":scale" (car param))
+                     (setq value (cdr param))))
+                 (if (not value)
+                     1.0
+                   value)))
          (tmp-skip (and embed (not (member type image-file-name-extensions))))
          (tmp-file (unless tmp-skip
                      (org-babel-temp-file "ob-base64-" (format ".%s" type))))
@@ -210,7 +225,7 @@ bin   | file     | link to kept file"
                     (delete-file tmp-file)))
           (embed (if (member type image-file-name-extensions)
                      (ob-base64--render-internal-embed
-                      body params level tmp-name tmp-file)
+                      body params level tmp-name tmp-file scale)
                    (if (string= type "bin")
                        (with-temp-buffer
                          (let ((y-or-n-p (lambda (&rest _) nil)))
@@ -262,7 +277,7 @@ Argument FILE path to the temporary file to render."
          (cancel-timer timer))))
    name file))
 
-(defun ob-base64--render-internal-embed (body params level name file)
+(defun ob-base64--render-internal-embed (body params level name file scale)
   "Render an image directly into a buffer.
 
 This is done via recursion due to org-babel not being able to
@@ -274,7 +289,8 @@ Argument BODY org-babel param.
 Argument PARAMS org-babel param.
 Argument LEVEL of recursive call.
 Argument NAME for timer identification.
-Argument FILE path to the temporary file to render."
+Argument FILE path to the temporary file to render.
+Argument SCALE passed as `create-image' :scale property."
   (when (and (not (org-babel-where-is-src-block-result))
              (not level))
     (run-at-time
@@ -292,7 +308,9 @@ Argument FILE path to the temporary file to render."
     (backward-char)
     (delete-char 1)
     (insert "\n")
-    (insert-image (create-image file))
+    (insert-image (create-image file nil nil :scale scale)
+                  ob-base64-embed-image-string nil
+                  nil)
     (move-beginning-of-line nil)
     (backward-char)
     (move-beginning-of-line nil)

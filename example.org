@@ -16,7 +16,7 @@
 ** Embedding images in the buffer
 Temporarily displayed/embedded, can't really be saved and needs to be re-drawn
 on every buffer opening - the base64 is the real "saved" value.
-#+begin_src base64 :type png :results embed
+#+begin_src base64 :type png :results embed :scale 1.1
 iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAQAAABIkb+zAAAAAmJLR0QA/4ePzL8AAATTSURBVHja
 7drNc1PXGcfxz5UtWZZtyfFLCPUrL3ZTGgJkyJBOUzZJp0wWXZRFmj+wySKr0plMZjotXXTaoWHa
 SRMgDcRuMQWCsSNiy7KMpduFXWrwNdaVZYZOztc7n3ue8/zuec45zz2PCAQCgUAgEAgEAoFAIBAI
