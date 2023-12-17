@@ -329,22 +329,13 @@ Argument SCALE passed as `create-image' :scale property."
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
-(defun org-babel-prep-session:base64 (_session _params)
-  "Prepare SESSION according to the header arguments specified in PARAMS.")
+(defun org-babel-prep-session:base64 (_session _params) "Noop.")
+(defun ob-base64-table-or-string (_results) "Noop.")
+(defun ob-base64-initiate-session (&optional _session) "Noop.")
 
 (defun ob-base64-var-to-base64 (var)
   "Convert an elisp VAR into a string of base64 source code specifying a VAR."
   (format "%S" var))
-
-(defun ob-base64-table-or-string (results)
-  "Convert RESULTS into an Emacs-lisp table or return back as string."
-  (ignore results))
-
-(defun ob-base64-initiate-session (&optional _session)
-  "If there is not a current inferior-process-buffer in SESSION then create.
-Return the initialized session."
-  ;; (unless (string= session "none"))
-  )
 
 (provide 'ob-base64)
 ;;; ob-base64.el ends here
