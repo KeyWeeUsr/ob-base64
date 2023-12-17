@@ -304,7 +304,7 @@ Argument SCALE passed as `create-image' :scale property."
     (goto-char (org-babel-where-is-src-block-result))
     (move-end-of-line nil)
     (forward-char)
-    (delete-region (point) (point-at-eol))
+    (delete-region (point) (line-end-position))
     (backward-char)
     (delete-char 1)
     (insert "\n")
