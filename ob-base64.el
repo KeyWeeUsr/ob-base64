@@ -97,14 +97,16 @@ Waits for closing of external process, safer than
   '((:results . "embed") (:exports . "results"))
   "Default arguments for evaluating a base64 source block.")
 
-;; This function expands the body of a source code block by doing things like
-;; prepending argument definitions to the body, it should be called by the
-;; `org-babel-execute:base64' function below. Variables get concatenated in the
-;; `mapconcat' form, therefore to change the formatting you can edit the
-;; `format' form.
 (defun ob-base64-expand-body-base64 (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body.
-Optional argument PROCESSED-PARAMS Coming from org-babel template."
+Optional argument PROCESSED-PARAMS Coming from org-babel template.
+
+This function expands the body of a source code block by doing
+things like prepending argument definitions to the body, it
+should be called by the `org-babel-execute:base64' function
+below. Variables get concatenated in the `mapconcat' form,
+therefore to change the formatting you can edit the `format'
+form."
   (require 'inf-base64 nil t)
   (let ((vars (org-babel--get-vars (or processed-params
                                        (org-babel-process-params params)))))
