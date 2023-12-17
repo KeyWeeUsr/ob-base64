@@ -218,7 +218,7 @@ bin   | file     | link to kept file
       (delete-file tmp-file))
 
     (cond ((or ob-base64-default-external (string= external "yes"))
-           (ob-base64--render-external tmp-name tmp-file))
+           (ob-base64--render-external-cleanup tmp-name tmp-file))
           (browse (if (not (string= type "bin"))
                       (ob-base64--render-internal-browse tmp-name tmp-file)
                     (hexl-find-file tmp-file)
