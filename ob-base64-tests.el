@@ -125,6 +125,56 @@
       (delete-file out-file)
       (should (not (file-exists-p out-file))))))
 
+(ert-deftest ob-base64-image-results-external-viewer ()
+  (with-temp-buffer
+    (ob-base64-cleanup)
+    (org-mode)
+    (add-to-list 'org-babel-load-languages '(base64 . t))
+    (let ((org-confirm-babel-evaluate nil)
+          (type "png")
+          timer-name
+          out-file
+          process-started)
+      (insert (format "#+begin_src base64 :type %s :external yes\n" type))
+      (goto-char (point-max))
+      (insert "b2ItYmFzZTY0\n")
+      (goto-char (point-max))
+      (insert "#+end_src\n")
+      (goto-char (point-max))
+      (should (eq (point) (point-max)))
+
+      (should (not (org-babel-where-is-src-block-result)))
+      (let ((inhibit-message t)
+            (message-log-max nil))
+        (advice-add 'ob-base64--render-external
+                    :after
+                    (lambda (name file)
+                      (setq-local timer-name name)
+                      (setq-local out-file file)))
+        (advice-add 'start-process
+                    :override
+                    (lambda (&rest r) (setq-local process-started t)))
+        (org-ctrl-c-ctrl-c)
+        (advice-remove 'start-process
+                       (lambda (&rest r) (setq-local process-started t)))
+        (advice-remove 'ob-base64--render-external
+                       (lambda (name file) (setq-local out-file file))))
+
+      (should (org-babel-where-is-src-block-result))
+      (should (file-exists-p out-file))
+      (should (let (found)
+                (dolist (timer timer-list)
+                  (when (string-match timer-name (format "%s" timer))
+                    (setq-local found t)))
+                found))
+      (sleep-for 2)
+      (should (not (file-exists-p out-file)))
+      (should (not (let (found)
+                     (dolist (timer timer-list)
+                       (when (string-match timer-name (format "%s" timer))
+                         (setq-local found t)))
+                     found))))))
+
 (ert-deftest ob-base64-image-results-browse-opens-url ()
   (with-temp-buffer
     (ob-base64-cleanup)
