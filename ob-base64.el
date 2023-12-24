@@ -4,7 +4,7 @@
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
-;; Version: 1.1.0
+;; Version: 1.1.2
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
@@ -86,18 +86,12 @@ Waits for closing of external process, safer than
   :group 'ob-base64
   :type 'string)
 
-;; aliases for org-babel + package-lint
-(defalias 'org-babel-expand-body:base64 #'ob-base64-expand-body-base64)
-(defalias 'org-babel-base64-var-to-base64 #'ob-base64-var-to-base64)
-(defalias 'org-babel-base64-table-or-string #'ob-base64-table-or-string)
-(defalias 'org-babel-base64-initiate-session #'ob-base64-initiate-session)
-
 ;; optionally declare default header arguments for this language
 (defvar org-babel-default-header-args:base64
   '((:results . "embed") (:exports . "results"))
   "Default arguments for evaluating a base64 source block.")
 
-(defun ob-base64-expand-body-base64 (body params &optional processed-params)
+(defun org-babel-expand-body:base64 (body params &optional processed-params)
   "Expand BODY according to PARAMS, return the expanded body.
 Optional argument PROCESSED-PARAMS Coming from org-babel template.
 
@@ -332,10 +326,10 @@ Argument SCALE passed as `create-image' :scale property."
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
 (defun org-babel-prep-session:base64 (_session _params) "Noop.")
-(defun ob-base64-table-or-string (_results) "Noop.")
-(defun ob-base64-initiate-session (&optional _session) "Noop.")
+(defun org-babel-base64-table-or-string (_results) "Noop.")
+(defun org-babel-base64-initiate-session (&optional _session) "Noop.")
 
-(defun ob-base64-var-to-base64 (var)
+(defun org-babel-base64-var-to-base64 (var)
   "Convert an elisp VAR into a string of base64 source code specifying a VAR."
   (format "%S" var))
 
