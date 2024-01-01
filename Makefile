@@ -8,5 +8,7 @@ all:
 
 .PHONY: tag
 tag:
+	$(MAKE) all
+	git add -f . && git stash
 	@grep ";; Version:" ob-base64.el | tee /dev/stderr | grep "$(TAG)"
 	@git tag "$(TAG)" --sign
