@@ -4,7 +4,7 @@
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
-;; Version: 1.1.2
+;; Version: 1.1.3
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
@@ -49,7 +49,7 @@
 
 (defcustom ob-base64-default-external
   nil
-  "Open images in external viewer or insert to Org buffer."
+  "Open images in external viewer instead of inserting to Org buffer."
   :group 'ob-base64
   :type 'boolean)
 
