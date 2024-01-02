@@ -3,6 +3,8 @@
 ;;; Code:
 
 (require 'ert)
+(require 'org)
+
 (require 'ob-base64)
 
 
