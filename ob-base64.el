@@ -4,7 +4,7 @@
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
-;; Version: 1.1.3
+;; Version: 1.1.4
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
@@ -101,7 +101,6 @@ should be called by the `org-babel-execute:base64' function
 below. Variables get concatenated in the `mapconcat' form,
 therefore to change the formatting you can edit the `format'
 form."
-  (require 'inf-base64 nil t)
   (let ((vars (org-babel--get-vars (or processed-params
                                        (org-babel-process-params params)))))
     (concat
