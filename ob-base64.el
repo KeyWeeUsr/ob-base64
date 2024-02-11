@@ -4,7 +4,7 @@
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
-;; Version: 1.1.4
+;; Version: 1.1.5
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
@@ -29,8 +29,9 @@
 ;; either within Emacs or view it externally via some 3rd-party opener.
 ;;
 ;; (add-to-list 'org-babel-load-languages '(base64 . t))
-
-;;; Requirements:
+;;
+;; NB: After a fresh install a restart of Emacs (or org-babel at least) might
+;; be required.
 
 ;;; Code:
 (require 'ob)
