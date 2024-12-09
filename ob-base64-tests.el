@@ -44,7 +44,7 @@
       (should (cdr (split-string (buffer-name (current-buffer)) "*temp*")))
 
       (advice-add 'browse-url-emacs
-                  :after
+                  (if window-system :after :override)
                   (lambda (&rest r) (setq-local browse-called t)))
       (advice-add 'org-babel-insert-result
                   :override
@@ -59,10 +59,11 @@
                      (lambda (&rest r) (setq-local mock-called t)))
 
       (should browse-called)
-      (should (not (string= old-buffs (format "%s" (buffer-list)))))
-      (setq buff-name (buffer-name (current-buffer)))
-      (should (cdr (split-string buff-name "ob-base64-")))
-      (should (string= (car (cdr (split-string buff-name "\\."))) type)))))
+      (when window-system
+        (should (not (string= old-buffs (format "%s" (buffer-list)))))
+        (setq buff-name (buffer-name (current-buffer)))
+        (should (cdr (split-string buff-name "ob-base64-")))
+        (should (string= (car (cdr (split-string buff-name "\\."))) type))))))
 
 (ert-deftest ob-base64-raw-results-embed ()
   (with-temp-buffer
@@ -203,7 +204,7 @@
       (should (cdr (split-string (buffer-name (current-buffer)) "*temp*")))
 
       (advice-add 'browse-url-emacs
-                  :after
+                  (if window-system :after :override)
                   (lambda (&rest r) (setq-local browse-called t)))
       (advice-add 'image-mode
                   :override
@@ -223,11 +224,12 @@
                      (lambda (&rest r) (setq-local mock-called t)))
 
       (should browse-called)
-      (should image-mode-activated)
-      (should (not (string= old-buffs (format "%s" (buffer-list)))))
-      (setq buff-name (buffer-name (current-buffer)))
-      (should (cdr (split-string buff-name "ob-base64-")))
-      (should (string= (car (cdr (split-string buff-name "\\."))) type)))))
+      (when window-system
+        (should image-mode-activated)
+        (should (not (string= old-buffs (format "%s" (buffer-list)))))
+        (setq buff-name (buffer-name (current-buffer)))
+        (should (cdr (split-string buff-name "ob-base64-")))
+        (should (string= (car (cdr (split-string buff-name "\\."))) type))))))
 
 (ert-deftest ob-base64-image-results-embed-creates-image ()
   (unless (boundp 'image-types)
@@ -316,6 +318,8 @@
       (should (not (file-exists-p out-file))))))
 
 (ert-deftest ob-base64-bin-results-browse-opens-hexl ()
+  (when (>= emacs-major-version 29)
+    (ert-skip "Something with browse-url-emacs in non-GUI"))
   (with-temp-buffer
     (ob-base64-cleanup)
     (org-mode)
