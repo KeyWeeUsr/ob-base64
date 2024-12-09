@@ -1,10 +1,10 @@
 ;;; ob-base64.el --- Org-babel for base64 content -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2023 Peter Badida
+;; Copyright (C) 2024 Peter Badida
 
 ;; Author: Peter Badida <keyweeusr@gmail.com>
 ;; Keywords: convenience, embedding, orgmode, base64, rendering
-;; Version: 1.1.5
+;; Version: 1.1.6
 ;; Package-Requires: ((emacs "26.1"))
 ;; Homepage: https://github.com/keyweeusr/ob-base64
 
