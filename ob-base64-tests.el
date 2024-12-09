@@ -230,6 +230,8 @@
       (should (string= (car (cdr (split-string buff-name "\\."))) type)))))
 
 (ert-deftest ob-base64-image-results-embed-creates-image ()
+  (unless (boundp 'image-types)
+    (ert-skip "Compiled without GUI support :("))
   (with-temp-buffer
     (ob-base64-cleanup)
     (org-mode)

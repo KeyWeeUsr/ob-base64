@@ -99,7 +99,7 @@ Optional argument PROCESSED-PARAMS Coming from org-babel template.
 This function expands the body of a source code block by doing
 things like prepending argument definitions to the body, it
 should be called by the `org-babel-execute:base64' function
-below. Variables get concatenated in the `mapconcat' form,
+below.  Variables get concatenated in the `mapconcat' form,
 therefore to change the formatting you can edit the `format'
 form."
   (let ((vars (org-babel--get-vars (or processed-params
