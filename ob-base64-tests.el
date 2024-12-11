@@ -15,7 +15,10 @@
          (or (string-match-p (regexp-quote "*Messages*") (buffer-name buff))
              (string-match-p (regexp-quote " *temp*") (buffer-name buff))
              (string-match-p (regexp-quote " *code-conversion-work*")
-                             (buffer-name buff)))
+                             (buffer-name buff))
+             (string-match-p (regexp-quote " *code-converting-work*")
+                             (buffer-name buff))
+             (string-match-p "ob-base64.*\\.el" (buffer-name buff)))
        (kill-buffer buff)))
    (buffer-list)))
 
